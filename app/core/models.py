@@ -7,11 +7,22 @@ import uuid
 
 # Create your models here.
 
-class CustomUser(AbstractUser):
+class User(AbstractUser):
     """
     Custom user model
     """
-    uuid = models.UUIDField(_("uuid"), default=uuid.uuid4, editable=False, unique=True, db_index=True)
+    email = models.EmailField(
+        max_length=255,
+        unique=True,
+        help_text="Enter your email address",
+        verbose_name="email address",
+        db_index=True
+    )
+    phone = models.CharField(
+        max_length=10,
+        help_text="Enter your phone number",
+        db_index=True
+    )
     age = models.CharField(
         max_length=3,
         help_text="Enter your age"
@@ -53,32 +64,33 @@ class CustomUser(AbstractUser):
         help_text="Last online time"
     )
 
-
-
-class ManagerUser(CustomUser):
+class ManagerUser(models.Model):
     """
     Manager user model
     """
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name="manager_user",
+        help_text="Manager user",
+        verbose_name="manager user",
+        db_index=True
+    )
     is_staff = True
     is_superuser = True
 
-
-class Doctor(CustomUser):
+class Doctor(models.Model):
     """
     Doctor user model
     """
-    phone = models.CharField(
-        max_length=10,
-        help_text="Enter your phone number",
-        db_index=True
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name="doctor_user",
+        help_text="Doctor user",
+        db_index = True
     )
-    score = models.SmallIntegerField(
-        default=0,
-        help_text="Doctor satisfaction score",
-        verbose_name="doctor satisfaction score ",
-        db_index=True
-    )
-    branch = models.OneToOneField(
+    branch = models.ForeignKey(
         "Branch",
         on_delete=models.CASCADE,
         related_name="branch",
@@ -87,12 +99,11 @@ class Doctor(CustomUser):
         db_index=True
     )
 
-    UNIQUE_FIELDS = ['email', 'phone']
-    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'age', 'password', 'branch']
+
+    UNIQUE_FIELDS = ['phone']
 
     class Meta:
-        db_table = "doctor_user"
-        index_together = ["branch", "score"]
+        db_table = "core_doctor"
         verbose_name = "doctor_user"
         verbose_name_plural = "doctor_users"
 
@@ -100,32 +111,32 @@ class Doctor(CustomUser):
         return f"Dr.{self.first_name} {self.last_name}"
     
     @staticmethod
+    def get_status():
+        return "dr"
+
+    @staticmethod
     def get_doctor_via_branch(branch):
         return Doctor.objects.filter(branch=branch).all()
 
-    @staticmethod
-    def get_doctor_via_score(score):
-        return Doctor.objects.filter(score__gte=score).all()
-    
-    @staticmethod
-    def get_doctor_via_branch_and_score(branch, score):
-        return Doctor.objects.filter(branch=branch, score__gte=score).all()
 
-
-class Patient(CustomUser):
+class Patient(models.Model):
     """
     Patient user model
     """
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name="patient_user",
+        help_text="Patient user",
+        verbose_name="patient user",
+        db_index=True
+    )
     identity_number = models.CharField(
         max_length=11,
         help_text="Enter your identity number",
         db_index=True
     )
-    phone = models.CharField(
-        max_length=10,
-        help_text="Enter your phone number",
-        db_index=True
-    )
+
     credit_card = models.JSONField(
         blank=True,
         null=True,
@@ -167,17 +178,17 @@ class Patient(CustomUser):
     )
 
 
-    UNIQUE_FIELDS = ['email', 'phone', 'identity_number']
-    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'age', 'password']
+    UNIQUE_FIELDS = ['phone', 'identity_number']
 
     class Meta:
-        db_table = "patient_user"
+        db_table = "core_patient"
         verbose_name = "patient_user"
         verbose_name_plural = "patient_users"
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
     
+
     @staticmethod
     def get_patient_via_age(age):
         return Patient.objects.filter(age=age).all()
@@ -228,6 +239,8 @@ class Membership(BaseModel):
         verbose_name="membership duration as day"
     )
     discount = models.SmallIntegerField(
+        null=True,
+        blank=True,
         help_text="Membership discount as percentage",
         verbose_name="membership discount as percentage"
     )
