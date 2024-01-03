@@ -7,7 +7,6 @@ app_name = 'core'
 router = routers.DefaultRouter()
 router.register(r'patient', views.PatientViewSet, basename='patient')
 router.register(r'branch', views.BranchViewSet, basename='branch')
-router.register(r'membership', views.MembershipViewSet, basename='membership')
 
 
 urlpatterns = [

@@ -4,7 +4,6 @@ from core.models import (
     Doctor,
     Patient,
     Branch,
-    Membership
 )
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth import get_user_model
@@ -69,11 +68,6 @@ class PatientSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Patient
-        fields = '__all__'
-
-class MembershipSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Membership
         fields = '__all__'
 
 

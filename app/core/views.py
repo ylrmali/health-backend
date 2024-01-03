@@ -15,7 +15,6 @@ from core.models import (
     Doctor,
     Patient,
     Branch,
-    Membership
 )
 from core.serializer import (
     UserRegisterSerializer,
@@ -23,7 +22,6 @@ from core.serializer import (
     DoctorRegisterSerializer,
     PatientSerializer,
     BranchSerializer,
-    MembershipSerializer
 )
 
 # Create your views here.
@@ -66,13 +64,6 @@ class BranchViewSet(viewsets.ModelViewSet):
         self.permission_classes = [IsAuthenticated]
         return super().list(request, *args, **kwargs)
     
-
-class MembershipViewSet(viewsets.ModelViewSet):
-    """
-    Membership viewset
-    """
-    queryset = Membership.objects.all()
-    serializer_class = MembershipSerializer
 
 class DoctorRegisterView(views.APIView):
     """

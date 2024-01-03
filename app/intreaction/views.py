@@ -12,10 +12,18 @@ from rest_framework.permissions import (
     IsAdminUser,
     AllowAny
 )
-from core.permissions import (
-    IsDoctor,
-    IsOwnerUser,
-    IsManager
-)
+
+
+class DoctorScoreView(views.APIView):
+    """
+    Doctor score view
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        """
+        Create doctor score
+        """
+        return Response(status=status.HTTP_200_OK)
 
     
